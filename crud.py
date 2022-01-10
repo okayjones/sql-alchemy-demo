@@ -4,8 +4,7 @@ from sqlalchemy import create_engine
 from config import DATABASE_URI
 from models import Base, Note
 from sqlalchemy.orm import sessionmaker
-from contextlib import contextmanager
-
+from sqlalchemy import update
 
 engine = create_engine(DATABASE_URI)
 
@@ -58,6 +57,28 @@ def add_note(name, desc):
     print('DB session closed!')
     print('*********************\n')
 
+def update_note(name, new_name):
+    print('\n*********************\n')
+    print('Opening DB session...')
+    s = Session()
+    print('Ready!')
+    
+    print('\nUpdating note...')
+    update_stmt = (
+        update(Note).where(Note.name == name).
+        values(name=new_name).
+        returning(Note.id, Note.name)
+    )
+    result = s.execute(update_stmt)
+    result = result.fetchall()
+    s.commit()
+    print('Successfully Updated: ', result, '\n')
+
+    
+    print('Closing DB session...')
+    s.close()
+    print('DB session closed!')
+    print('*********************\n')
 
 
 if __name__ == '__main__': 
